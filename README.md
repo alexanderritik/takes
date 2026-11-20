@@ -24,9 +24,18 @@ Linux and macOS:
 curl -fsSL https://raw.githubusercontent.com/alexanderritik/takes/main/install.sh | sh
 ```
 
-Or download the archive for your system from
-[Releases](https://github.com/alexanderritik/takes/releases) and put `takes`
-on your `PATH`. Each release has a `checksums.txt` (SHA-256):
+Or download the latest build for your system and put `takes` on your `PATH`:
+
+| System | Download |
+|---|---|
+| Linux, Intel/AMD (x86-64) | [takes_linux_amd64.tar.gz](https://github.com/alexanderritik/takes/releases/latest/download/takes_linux_amd64.tar.gz) |
+| Linux, ARM (arm64) | [takes_linux_arm64.tar.gz](https://github.com/alexanderritik/takes/releases/latest/download/takes_linux_arm64.tar.gz) |
+| macOS, Apple Silicon (M1 and later) | [takes_darwin_arm64.tar.gz](https://github.com/alexanderritik/takes/releases/latest/download/takes_darwin_arm64.tar.gz) |
+| macOS, Intel | [takes_darwin_amd64.tar.gz](https://github.com/alexanderritik/takes/releases/latest/download/takes_darwin_amd64.tar.gz) |
+| Windows, x86-64 | [takes_windows_amd64.zip](https://github.com/alexanderritik/takes/releases/latest/download/takes_windows_amd64.zip) |
+
+Older versions are on [Releases](https://github.com/alexanderritik/takes/releases).
+Each release has a `checksums.txt` (SHA-256) to check your download:
 
 ```bash
 sha256sum -c checksums.txt --ignore-missing      # Linux
