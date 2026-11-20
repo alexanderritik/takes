@@ -291,6 +291,7 @@ main a,main button,.solid{pointer-events:auto}
 .foot-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2rem 4rem;align-items:start}
 .foot-row p{margin:0;max-width:40rem;color:var(--mute);font-size:.92rem}
 .foot-row p a{color:var(--screen);border-bottom:1px solid var(--line-2)}
+.foot-note{margin:2.4rem 0 0;font:400 .72rem/1.6 var(--f-mono);color:var(--dim)}
 .foot-links{display:grid;gap:.6rem;font:500 .7rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
 .foot-links a:hover{color:var(--tungsten)}
 .foot-giant{font-family:var(--f-display);font-size:clamp(8rem,31vw,30rem);line-height:.78;letter-spacing:-.04em;color:transparent;-webkit-text-stroke:1px var(--line-2);text-align:center;margin-top:3rem;transform:translateY(12%);user-select:none;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
@@ -396,7 +397,7 @@ main a,main button,.solid{pointer-events:auto}
     <li><button data-go="4" title="Scene 5: The command line"><span>05</span><i></i></button></li>
     <li><button data-go="5" title="Scene 6: Install"><span>06</span><i></i></button></li>
   </ol>
-  <div class="hud-meta" aria-hidden="true"><span id="hud-scene">SC 01</span> · 25 fps · format 2</div>
+  <div class="hud-meta" aria-hidden="true"><span id="hud-scene">SC 01</span> · 25 fps · format 1</div>
 </div>
 
 <main>
@@ -452,10 +453,10 @@ main a,main button,.solid{pointer-events:auto}
           <ul class="bars" aria-label="Five versions referring to one copy of the footage">
             <li class="src"><span>media/</span><small>your footage, referred to, never copied</small></li>
             <li class="ver" style="--c:var(--tungsten)"><i></i><b>1c02b5e</b><span>editor · import</span></li>
-            <li class="ver" style="--c:var(--tungsten)"><i></i><b>70aa3d9</b><span>editor · move the drone shot</span></li>
+            <li class="ver" style="--c:var(--tungsten)"><i></i><b>70aa3d9</b><span>editor · move the wide shot</span></li>
             <li class="ver" style="--c:var(--tungsten)"><i></i><b>b81e6f4</b><span>editor · swap b-roll</span></li>
             <li class="ver" style="--c:var(--teal)"><i></i><b>3f7d21c</b><span>agent-a · tighten the intro</span></li>
-            <li class="ver" style="--c:var(--teal)"><i></i><b>9c41e0a</b><span>agent-b · punch in on the interview</span></li>
+            <li class="ver" style="--c:var(--teal)"><i></i><b>9c41e0a</b><span>agent-b · punch in on the close-up</span></li>
           </ul>
           <p class="side-f" style="margin:0"><strong>Five timelines and one copy of the footage</strong>, with every change named, dated and reversible.</p>
         </div>
@@ -473,13 +474,12 @@ main a,main button,.solid{pointer-events:auto}
       </div>
       <figure class="card solid" style="margin:0">
         <div class="card-h"><span>review · agent-a</span><span class="pill req">open</span></div>
-<pre class="term"><span class="p">$</span> <span class="c">takes review agent-a</span>
-<span class="k">title</span>      <span class="c">"tighten the intro"</span>
-<span class="k">can_merge</span>  <span class="a">true</span>
-<span class="k">changes</span>    <span class="c">2 of 6 clips</span>
-  <span class="t">clip a out point 75 -&gt; 50</span>
-  <span class="t">clip f src "outro_card.mov" -&gt; "end_slate.mov"</span>
-<span class="k">length</span>     <span class="c">500 -&gt; 475 frames</span></pre>
+<pre class="term"><span class="p">$</span> <span class="c">takes review agent-a --json</span>
+{ <span class="k">"title"</span>: <span class="c">"tighten the intro"</span>, <span class="k">"can_merge"</span>: <span class="a">true</span>,
+  <span class="k">"changes"</span>: { <span class="k">"changed"</span>: <span class="c">2</span>, <span class="k">"total"</span>: <span class="c">6</span>, <span class="k">"lines"</span>: [
+    <span class="t">"clip a out point 75 -&gt; 50"</span>,
+    <span class="t">"clip f video replaced: media/flares.mp4 -&gt; media/inferno.mp4"</span> ] },
+  <span class="k">"length_now"</span>: <span class="c">500</span>, <span class="k">"length_if_approved"</span>: <span class="c">475</span>, … }</pre>
         <div class="out" id="approve-out" aria-live="polite"><pre class="term" id="approve-log"></pre></div>
         <div class="card-f">
           <p id="approve-note">Main is unchanged until you approve.</p>
@@ -523,13 +523,13 @@ main a,main button,.solid{pointer-events:auto}
       <figure class="card solid" style="margin:0">
         <div class="card-h"><span>log · blame · revert</span><span class="pill ok">main</span></div>
 <pre class="term"><span class="p">$</span> <span class="c">takes log</span>
-<span class="a">9c41e0a</span>  agent-b   <span class="c">punch in on the interview</span>  <span class="a">main</span>
+<span class="a">9c41e0a</span>  agent-b   <span class="c">punch in on the close-up</span>  <span class="a">main</span>
 <span class="a">3f7d21c</span>  agent-a   <span class="c">tighten the intro</span>
 <span class="a">b81e6f4</span>  editor    <span class="c">swap b-roll</span>
-<span class="a">70aa3d9</span>  editor    <span class="c">move the drone shot</span>
+<span class="a">70aa3d9</span>  editor    <span class="c">move the wide shot</span>
 <span class="a">1c02b5e</span>  editor    <span class="c">import</span>
 <span class="p">$</span> <span class="c">takes blame</span>
-clip <span class="a">c</span>  in 100  out 175  <span class="c">agent-b  "punch in on the interview"</span>
+clip <span class="a">c</span>  in 100  out 175  <span class="c">agent-b  "punch in on the close-up"</span>
 <span class="p">$</span> <span class="c">takes revert b81e6f4 "back to the editor's cut"</span></pre>
       </figure>
     </div>
@@ -550,7 +550,7 @@ clip <span class="a">c</span>  in 100  out 175  <span class="c">agent-b  "punch 
         <ul class="facts">
           <li><span class="k">Your media</span><p><b>Videos are referred to, never copied.</b> Takes opens only files inside the project folder and fingerprints them, so a file swapped under the same name shows up in review.</p></li>
           <li><span class="k">Your fields</span><p><b>Every other field is kept.</b> Colour, transitions and effect settings ride along as sent and merge one field at a time, so two agents setting <code>fx.a</code> and <code>fx.b</code> both land.</p></li>
-          <li><span class="k">Frames</span><p><b>Every time is a whole frame</b> at the project's rate, including 30000/1001. Shapes are frozen by golden tests; format 2 only grows.</p></li>
+          <li><span class="k">Frames</span><p><b>Every time is a whole frame</b> at the project's rate, including 30000/1001. Shapes are frozen by golden tests; the format only grows.</p></li>
         </ul>
       </div>
       <div class="stack">
@@ -628,11 +628,14 @@ clip <span class="a">c</span>  in 100  out 175  <span class="c">agent-b  "punch 
       <a href="https://github.com/alexanderritik/takes/blob/main/LICENSE" target="_blank" rel="noopener">Licence</a>
     </nav>
   </div>
+  <p class="foot-note wrap">The footage in the background reel belongs to its owners and is shown for illustration. Takes is not affiliated with any studio, league or game publisher.</p>
   <div class="foot-giant" aria-hidden="true">Tak<em>e</em>s</div>
 </footer>
 
 <div class="tip" id="tip" aria-hidden="true"></div>
 <div class="cursor" aria-hidden="true"><div class="cursor-dot"></div><div class="cursor-ring"><span id="cursor-label">READ</span></div></div>
+
+<video id="reel" muted loop playsinline preload="auto" aria-hidden="true" tabindex="-1" style="position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none"></video>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
@@ -756,12 +759,12 @@ const apBtn = document.getElementById('approve-btn'), apOut = document.getElemen
 apBtn.addEventListener('click', () => {
   apTarget = apTarget ? 0 : 1;
   if (apTarget) {
-    apLog.innerHTML = '<span class="p">$</span> <span class="c">takes approve agent-a</span>\n{ <span class="k">"cut"</span>: <span class="c">"agent-a"</span>, <span class="k">"version"</span>: <span class="a">"3f7d21c…"</span>, <span class="k">"merged"</span>: <span class="c">false</span> }';
+    apLog.innerHTML = '<span class="p">$</span> <span class="c">takes approve agent-a</span>\n{ <span class="k">"cut"</span>: <span class="c">"agent-a"</span>, <span class="k">"version"</span>: <span class="a">"3f7d21c…"</span>, <span class="k">"base"</span>: <span class="a">"1c02b5e…"</span>, <span class="k">"merged"</span>: <span class="c">false</span>, <span class="k">"undone"</span>: [] }';
     apNote.textContent = 'Main moved forward to agent-a. 475 frames.';
     apBtn.textContent = 'Revert'; apBtn.classList.add('is-revert');
     flash('#ffb347');
   } else {
-    apLog.innerHTML = '<span class="p">$</span> <span class="c">takes revert 1c02b5e "back to the editor\'s cut"</span>\n<span class="k">main is back to the import, recorded as a new version</span>';
+    apLog.innerHTML = '<span class="p">$</span> <span class="c">takes revert 1c02b5e "back to the editor\'s cut"</span>\nreverted main to 1c02b5e as version 9a41e07: back to the editor\'s cut';
     apNote.textContent = 'Nothing was erased. The approval is still in the log.';
     apBtn.textContent = 'Approve agent-a'; apBtn.classList.remove('is-revert');
   }
@@ -771,7 +774,7 @@ apBtn.addEventListener('click', () => {
 // exit codes in SC 05
 const EXITS = {
   0: ['Done.', [], 'stdout holds the result document.', '#ffb347'],
-  1: ['Failed for another reason.', ['failed', 'busy', 'damaged'], 'busy: another command held the project for 30 s, try again. damaged: run takes check.', '#efebe3'],
+  1: ['Failed for another reason.', ['failed', 'busy', 'damaged', 'ffprobe_missing'], 'busy: another command held the project for 30 s, try again. damaged: run takes check. ffprobe_missing: install ffmpeg.', '#efebe3'],
   2: ['Called wrongly.', ['usage'], 'A flag or argument was wrong. A typo never turns into a cut name.', '#efebe3'],
   3: ['Something named does not exist.', ['not_a_project', 'not_found'], 'The project, cut or version you named is not there.', '#efebe3'],
   4: ['Merge conflict. Nothing was changed.', ['conflict'], 'Read error.conflicts: each names the clip, the property, and the base, ours and theirs values.', '#ff5466'],
@@ -952,10 +955,10 @@ function buildStage() {
     if (c.id === 'f') { c.src = 'media/end_slate.mov'; c.look = 'end_slate'; c.author = 'agent-a'; c.msg = 'tighten the intro'; c.changed = 1; }
     c.start = t; t += c.out - c.in;
   });
-  // agent-b: "punch in on the interview"
+  // agent-b: "punch in on the close-up"
   mainV1.forEach(m => {
-    const c = mk(m, 'b', { agent: 1, twin: m, title: 'punch in on the interview' });
-    if (c.id === 'c') { c.in = 100; c.author = 'agent-b'; c.msg = 'punch in on the interview'; c.changed = 1; c.conflict = 1; }
+    const c = mk(m, 'b', { agent: 1, twin: m, title: 'punch in on the close-up' });
+    if (c.id === 'c') { c.in = 100; c.author = 'agent-b'; c.msg = 'punch in on the close-up'; c.changed = 1; c.conflict = 1; }
   });
   // agent-c: "warmer grade"
   mainV1.forEach(m => {
@@ -965,7 +968,7 @@ function buildStage() {
     if (c.id === 'e') { c.look = 'interview_warm'; c.author = 'agent-c'; c.msg = 'warmer grade'; c.changed = 1; c.fx = 'fx.grade "neutral" -> "warm"'; }
   });
   // older versions of main
-  const VERS = [null, ['b81e6f4', 'swap b-roll'], ['70aa3d9', 'move the drone shot'], ['1c02b5e', 'import']];
+  const VERS = [null, ['b81e6f4', 'swap b-roll'], ['70aa3d9', 'move the wide shot'], ['1c02b5e', 'import']];
   const hash = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
   for (let k = 1; k <= 3; k++) MAIN.forEach((m, j) => {
     const c = mk(m, 'g' + k, { k, ver: VERS[k] });
@@ -975,9 +978,26 @@ function buildStage() {
     c.author = 'editor'; c.msg = VERS[k][1];
   });
 
+  // which mini edit (cell of the 8x4 reel) each clip shows; its src is named after it
+  const CELL_NAMES = ['mirror_fire', 'hit_the_gas', 'red_mask', 'city_burns', 'rain_walk', 'tunnel_fire', 'skyline',
+    'the_shield', 'cold_walk', 'helmet', 'assemble', 'last_stand', 'boss_intro', 'power_up', 'pride', 'limit_break',
+    'no_mercy', 'ultra', 'trespass', 'the_ghost', 'misunderstood', 'uchiha_title', 'wake_up', 'the_reaction',
+    'the_reason', 'night_match', 'eleven_goals', 'flares', 'the_wall', 'golden_ball', 'last_minute', 'inferno'];
+  const MAIN_CELL = { g: 12, h: 4, i: 21, a: 0, b: 7, c: 13, d: 25, e: 19, f: 27 };
+  clips.forEach(c => {
+    if (c.kind === 'audio') return;
+    let cell = MAIN_CELL[c.id];
+    if (c.group === 'a' && c.id === 'f') cell = 31;
+    if (c.k) cell = (cell + c.k * 9 + 3) % 32;   // older versions used other shots
+    c.cell = cell; c.src = `media/${CELL_NAMES[cell]}.mp4`;
+    if (c.group === 'c' && (c.id === 'd' || c.id === 'e')) c.warm = 1;
+  });
+
   /* ---------- materials ---------- */
   const U_TIME = { value: 0 }, U_FOGN = { value: 12 }, U_FOGF = { value: 44 }, U_FOGC = { value: INK };
   const U_RES = { value: new THREE.Vector2(1, 1) }, U_MASKX = { value: .5 }, U_MASKA = { value: 0 };
+  const U_REEL = { value: null }, U_HASREEL = { value: 0 };
+  let reelOn = 0;
   const faceMat = new THREE.ShaderMaterial({
     transparent: true,
     uniforms: {
@@ -985,6 +1005,7 @@ function buildStage() {
       uHz: { value: .4 }, uSeed: { value: 0 }, uKind: { value: 0 }, uSize: { value: new THREE.Vector2(1, 1) },
       uOpacity: { value: 1 }, uGlow: { value: new THREE.Color() }, uGlowAmt: { value: 0 }, uHover: { value: 0 },
       uTime: U_TIME, uFogN: U_FOGN, uFogF: U_FOGF, uFogC: U_FOGC, uRes: U_RES, uMaskX: U_MASKX, uMaskAmt: U_MASKA,
+      uReel: U_REEL, uHasReel: U_HASREEL, uCell: { value: new THREE.Vector2() }, uWarm: { value: 0 },
     },
     vertexShader: `
       uniform vec2 uSize;
@@ -999,7 +1020,9 @@ function buildStage() {
     fragmentShader: `
       uniform vec3 uA, uB, uC, uGlow, uFogC;
       uniform float uHz, uSeed, uKind, uOpacity, uGlowAmt, uHover, uTime, uFogN, uFogF, uMaskX, uMaskAmt;
-      uniform vec2 uSize, uRes;
+      uniform vec2 uSize, uRes, uCell;
+      uniform sampler2D uReel;
+      uniform float uHasReel, uWarm;
       varying vec2 vUv; varying vec3 vN; varying vec3 vView; varying float vDepth;
       float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
       float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.-2.*f);
@@ -1016,6 +1039,23 @@ function buildStage() {
           float d = length((uv - sp) * vec2(uSize.x / uSize.y, 1.));
           col += uA * .8 * smoothstep(.26, 0., d);
           col *= .92 + .08 * sin(uv.y * uSize.y * 260.);
+          if (uHasReel > .001) {
+            // filmstrip: square thumbnails of this clip's mini edit, like an editor's timeline
+            float n = max(1., floor(uSize.x / uSize.y + .35));
+            float lx = fract(uv.x * n);
+            float asp = (uSize.x / n) / uSize.y;
+            vec2 l = vec2(lx, uv.y);
+            if (asp > 1.) l.y = .5 + (l.y - .5) / asp; else l.x = .5 + (l.x - .5) * asp;
+            l = clamp(l, .006, .994);
+            vec3 v = texture2D(uReel, vec2((uCell.x + l.x) / 8., 1. - (uCell.y + 1. - l.y) / 4.)).rgb;
+            // grade the footage into the page: a little less saturation, cool shadows, warm highlights
+            float lum = dot(v, vec3(.299, .587, .114));
+            v = mix(vec3(lum), v, .82);
+            v *= mix(vec3(.86, .96, 1.08), vec3(1.1, 1., .86), smoothstep(.1, .8, lum));
+            v = mix(v, v * vec3(1.2, 1., .72), uWarm);
+            v *= .5 + .5 * smoothstep(0., .025, lx) * (1. - smoothstep(.975, 1., lx));
+            col = mix(col, v * 1.08, uHasReel);
+          }
         } else {
           float x = uv.x * uSize.x * 16.;
           float amp = .08 + .36 * vnoise(vec2(x * .35 + uSeed * 20., 1.)) * (.4 + .6 * vnoise(vec2(x * 2.1, uSeed * 3.)));
@@ -1063,6 +1103,9 @@ function buildStage() {
     const fm = faceMat.clone();
     fm.uniforms.uTime = U_TIME; fm.uniforms.uFogN = U_FOGN; fm.uniforms.uFogF = U_FOGF; fm.uniforms.uFogC = U_FOGC;
     fm.uniforms.uRes = U_RES; fm.uniforms.uMaskX = U_MASKX; fm.uniforms.uMaskAmt = U_MASKA;
+    fm.uniforms.uReel = U_REEL; fm.uniforms.uHasReel = U_HASREEL;
+    if (c.cell !== undefined) fm.uniforms.uCell.value.set(c.cell % 8, Math.floor(c.cell / 8));
+    fm.uniforms.uWarm.value = c.warm ? 1 : 0;
     fm.uniforms.uA.value.set(L[0]); fm.uniforms.uB.value.set(L[1]); fm.uniforms.uC.value.set(L[2]);
     fm.uniforms.uHz.value = L[3]; fm.uniforms.uSeed.value = hash(idx + 3.3);
     fm.uniforms.uKind.value = c.kind === 'audio' ? 1 : 0;
@@ -1085,6 +1128,30 @@ function buildStage() {
     scene.add(mesh); meshes.push(mesh);
   });
   const byKey = (g, id) => clips.find(c => c.group === g && c.id === id && c.track === 'V1');
+
+  /* ---------- reel footage on the clip faces ---------- */
+  // Browsers refuse footage they consider cross-origin (e.g. a page opened from file://); the clips then keep their drawn look.
+  const readable = src => { try { const cv = document.createElement('canvas'); cv.width = cv.height = 2; const x = cv.getContext('2d'); x.drawImage(src, 0, 0, 2, 2); x.getImageData(0, 0, 1, 1); return true; } catch (e) { return false; } };
+  const poster = new Image();
+  poster.onload = () => {
+    if (U_REEL.value || !readable(poster)) return;
+    const t = new THREE.Texture(poster); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; t.needsUpdate = true;
+    U_REEL.value = t; reelOn = 1;
+  };
+  poster.src = 'media/reel-poster.jpg';
+  const reelEl = document.getElementById('reel');
+  if (reelEl && !reduce) {
+    reelEl.muted = true;
+    reelEl.addEventListener('playing', () => {
+      if (!readable(reelEl)) return;
+      const t = new THREE.VideoTexture(reelEl); t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter; t.generateMipmaps = false;
+      U_REEL.value = t; reelOn = 1;
+    }, { once: true });
+    reelEl.src = isSmall() ? 'media/reel-sm.mp4' : 'media/reel.mp4';
+    const tryPlay = () => { const pr = reelEl.play(); if (pr && pr.catch) pr.catch(() => {}); };
+    tryPlay();
+    addEventListener('pointerdown', () => { if (reelEl.paused) tryPlay(); }, { once: true });
+  }
 
   /* ---------- layouts per scene ---------- */
   const QI = new THREE.Quaternion();
@@ -1293,6 +1360,7 @@ function buildStage() {
     apP = clamp(apP + (apTarget ? 1 : -1) * dt / 1.5);
     AP = ease3(apP);
     flashAmt *= Math.exp(-dt * 2.2);
+    U_HASREEL.value += (reelOn - U_HASREEL.value) * (1 - Math.exp(-dt * 2));
 
     const i = Math.min(CAMS.length - 1, Math.floor(sDisp));
     const j = Math.min(CAMS.length - 1, i + 1);

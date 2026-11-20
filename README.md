@@ -43,7 +43,8 @@ shasum -a 256 -c checksums.txt --ignore-missing  # macOS
 ```
 
 **Requires ffmpeg** (Takes uses its `ffprobe`): `apt install ffmpeg`,
-`brew install ffmpeg`, or `winget install Gyan.FFmpeg`.
+`brew install ffmpeg`, or `winget install Gyan.FFmpeg`. Without it, a command
+that has to read a video in the project folder fails with `ffprobe_missing`.
 
 **macOS:** the binary is not signed yet. If you downloaded it with a browser
 and macOS refuses to open it, clear the download flag once:
@@ -62,8 +63,8 @@ takes review agent                        # ...and a person sees what changed
 takes approve agent
 ```
 
-No timeline yet? `takes init video.mp4` finds the shots in a video and starts
-from those. `takes log`, `takes blame` and `takes revert` work on the record.
+No timeline yet? `takes init video.mp4` makes the whole video one clip to
+start from; cut it as your first edit. `takes log`, `takes blame` and `takes revert` work on the record.
 
 ## With an AI agent
 
