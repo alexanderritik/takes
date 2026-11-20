@@ -1,0 +1,32 @@
+Takes License
+
+Copyright (c) 2026 Ritik Srivastava. All rights reserved.
+
+"Takes" means the takes program in any form, as released at
+https://github.com/alexanderritik/takes.
+
+1. Free use. You may download and run Takes free of charge to evaluate it,
+   including inside a company, and for personal, educational or other
+   non-commercial use.
+
+2. Commercial use needs a licence. Using Takes in or for a commercial
+   product or service, or for paid or production work, needs a separate
+   written licence from the copyright holder. Ask through
+   https://github.com/alexanderritik/takes/issues.
+
+3. You may not:
+   - copy, share, sell, rent or sublicense Takes, or ship it inside another
+     product, except under a written licence;
+   - reverse engineer, decompile or disassemble it, except where the law
+     allows this despite this limit;
+   - remove or change this notice.
+
+4. The documentation, install script and demo in this repository (README.md,
+   CLI.md, install.sh and demo/) may be copied and adapted freely to
+   integrate with Takes.
+
+5. No warranty. Takes is provided "as is", without any warranty, express or
+   implied. The copyright holder is not liable for any claim, damage or
+   loss, including lost work or data, arising from its use.
+
+6. If you break these terms, your right to use Takes ends.

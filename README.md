@@ -87,3 +87,11 @@ and how conflicts are reported. Add `--json` to any command.
 [demo/](demo/) runs one real round trip on Linux or macOS: an agent edits an
 MLT project (the format Shotcut and Kdenlive save) over MCP, a person
 approves, and melt renders the result.
+
+## Licence
+
+Free to evaluate, including inside a company, and free for personal and
+non-commercial use. Using Takes in a commercial product, service or
+production work needs a licence: ask through
+[issues](https://github.com/alexanderritik/takes/issues). See
+[LICENSE](LICENSE).
