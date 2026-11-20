@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An MLT project, the format Shotcut and Kdenlive save and melt renders:
+     the Aladdin reel, its six shots in story order on one video track. Like
+     an editor's project, it sits in a folder with its media: run.sh copies
+     it and testdata/aladdin's videos into out/, which is that folder. -->
+<mlt LC_NUMERIC="C" version="7.22.0" title="Aladdin reel" producer="tractor0">
+  <profile description="Portrait 360x640 30 fps" width="360" height="640" progressive="1"
+           sample_aspect_num="1" sample_aspect_den="1" display_aspect_num="9" display_aspect_den="16"
+           frame_rate_num="30" frame_rate_den="1" colorspace="709"/>
+  <producer id="producer0" in="0" out="719">
+    <property name="resource">media/aladdin.mp4</property>
+    <property name="mlt_service">avformat</property>
+  </producer>
+  <playlist id="playlist0">
+    <property name="shotcut:video">1</property>
+    <property name="shotcut:name">V1</property>
+    <entry producer="producer0" in="0" out="119">
+      <property name="shotcut:caption">The market</property>
+    </entry>
+    <entry producer="producer0" in="120" out="239">
+      <property name="shotcut:caption">The cave</property>
+    </entry>
+    <entry producer="producer0" in="240" out="359">
+      <property name="shotcut:caption">The lamp</property>
+    </entry>
+    <entry producer="producer0" in="360" out="479">
+      <property name="shotcut:caption">The genie</property>
+    </entry>
+    <entry producer="producer0" in="480" out="599">
+      <property name="shotcut:caption">The palace</property>
+    </entry>
+    <entry producer="producer0" in="600" out="719">
+      <property name="shotcut:caption">The carpet</property>
+    </entry>
+  </playlist>
+  <tractor id="tractor0">
+    <track producer="playlist0"/>
+  </tractor>
+</mlt>
