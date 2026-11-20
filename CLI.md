@@ -41,7 +41,7 @@ An AI agent can use the same commands as tools over MCP: see `mcp` below.
 | `-C dir` | The project folder. Defaults to the current folder. Goes before the command. Like `git -C`, takes runs as if started there: a file argument (`init -timeline t.json`, `submit kim x t.json`) is found from it. |
 | stdin | Read only by `submit` (when the file is `-` or left out) and `init -timeline -`. No command ever prompts. If stdin is a terminal, they refuse rather than wait. |
 | `--` | Everything after it is an argument, even if it starts with `-`. |
-| Help | `takes help`, `takes help <command>`, `takes <command> --help`. `takes --json help` lists the commands as data. |
+| Help | `takes help`, `takes help <command>`, `takes <command> --help`. `takes --json help` lists the commands as data: `{"commands": [{"name", "usage", "summary", "group"}]}`, and `takes --json help <command>` just that one. |
 | Version | `takes --version`, or `takes version --json` for `{"version", "format"}`. |
 
 A command that takes no flags refuses anything else that starts with `-`
@@ -52,7 +52,7 @@ A command that takes no flags refuses anything else that starts with `-`
 | Exit | Meaning | Error codes |
 |---|---|---|
 | 0 | done | |
-| 1 | failed for a reason not below | `failed` (a bug, a disk error), `busy` (another command held the project for 30 seconds; try again), `damaged` (the project's files are missing or altered; run `check`) |
+| 1 | failed for a reason not below | `failed` (a bug, a disk error), `busy` (another command held the project for 30 seconds; try again), `damaged` (the project's files are missing or altered; run `check`), `ffprobe_missing` (ffprobe is not installed: install ffmpeg) |
 | 2 | called wrongly | `usage` |
 | 3 | something named does not exist | `not_a_project`, `not_found` |
 | 4 | merge conflict; nothing was changed | `conflict` |
@@ -130,6 +130,11 @@ trusts it if not, and you send `media` if you want a replacement noticed. A
 `src` that reads like a file name but is not there is refused as a likely
 typo, unless the clip says its kind. Old versions refer to videos you may
 since have deleted: keeping them is the tool's job.
+
+Reading a video in the project folder needs `ffprobe`, which comes with
+ffmpeg, on the `PATH`. Without it, a command that has to read one fails
+with `ffprobe_missing` (exit 1) and changes nothing; URLs and media IDs
+never need it.
 
 **Start times.** Agents, note: trimming a clip no longer moves the clips
 after it. If a track's clips have `start`, they play in that order,
@@ -210,7 +215,7 @@ both ways. **Ours** is main; **theirs** is the edit request.
 
 | `kind` | What collided | Fields |
 |---|---|---|
-| `property` | both changed one property of a clip differently | `property` is one of `src`, `media`, `file`, `duration`, `in`, `out`, `track`, `layer`, `volume`, `gap`, `sync`, `position`. `volume` values are multipliers, 1 for a clip with none. `base`, `ours` and `theirs` are its three values. `gap` is the frames of space before the clip on its track; `file` is Takes' fingerprint of a video in the project folder, when the two sides saw different files under one name. `position` (the clip's place in the order) has no values. |
+| `property` | both changed one property of a clip differently | `property` is one of `src`, `media`, `file`, `duration`, `kind`, `in`, `out`, `track`, `layer`, `volume`, `gap`, `sync`, `position`. `volume` values are multipliers, 1 for a clip with none. `base`, `ours` and `theirs` are its three values. `gap` is the frames of space before the clip on its track; `file` is Takes' fingerprint of a video in the project folder, when the two sides saw different files under one name. `position` (the clip's place in the order) has no values. |
 | `delete_edit` | one side deleted the clip, the other edited it | `ours` and `theirs` are `"deleted"` or `"edited"` |
 | `both_added` | both added a clip with this ID, differently | |
 | `same_range` | both changed the same frames of a clip that was cut into parts | `ours`, `theirs`: frame ranges `[in, out]` |
@@ -248,8 +253,8 @@ long value is shortened in the sentence (it stays whole in a conflict's
 ### init
 
 ```
-takes init -timeline <file|->                            import a timeline as version 1
-takes init [-rate r] [-scene n] [-min s] <video> [names...]   find the shots in a video
+takes init -timeline <file|->        import a timeline as version 1
+takes init [-rate r] <video> [name]  make the whole video one clip
 ```
 
 Both take `-whole fx,transition`: fields that merge as one value (see
@@ -265,18 +270,16 @@ Returns the timeline of main:
 `length` is in frames. `settings` is added, as an object, when the timeline
 has other top-level fields.
 
-`init -timeline` needs `rate`. `init <video>` takes the video's frame rate
-unless `-rate` gives another, and refers to the video by the path given; a
-video of sound only has no frame rate, so it needs `-rate`, and becomes one
-audio clip of the whole file.
+`init -timeline` needs `rate`. `init <video>` makes the whole video one
+clip, called `name` (default `clip1`), and refers to the video by the path
+given. It takes the video's frame rate unless `-rate` gives another; a video
+of sound only has no frame rate, so it needs `-rate`, and becomes one audio
+clip.
 
-Finding shots: a cut is a jump between frames scored above `-scene`
-(default 0.1; camera footage often wants 0.3 to 0.4), or a jump that stands
-out once the picture's brightness is spread out, so cuts between dark shots
-are found too, or a short stretch of black (a fade). Cuts closer together
-than `-min` seconds (default 0.5) are one cut, at the strongest, so a
-dissolve is one cut. No detector is always right: treat the shots as a first
-timeline to correct.
+Takes does not look for the shots in a video. To work shot by shot, cut the
+clip where you want, as an edit like any other (see "Splitting a clip"
+above), or find the shots with any tool you like and start from them with
+`init -timeline`.
 
 Refuses with `already_exists` (exit 5) if the folder is already a project.
 An init that is refused leaves the folder as it was.
@@ -506,7 +509,8 @@ the document that command prints, as text and as `structuredContent`;
 `isError` is true when the command failed. The tools are `checkout`,
 `submit` (arguments `cut`, `title`, and `timeline`, the object checkout
 returned), `requests`, `review`, `update`, `show`, `diff`, `history` and
-`log`. `approve` and `close` are the owner's decisions and are offered
+`log`. A required argument left out is answered with `isError` and code
+`usage`. `approve` and `close` are the owner's decisions and are offered
 only with `-owner`: Takes cannot yet tell an agent from the owner, so an
 agent given `-owner` can approve its own edits.
 
@@ -535,7 +539,7 @@ use the same `{"error": {...}}` document, with these statuses:
 | 403 | `forbidden` (missing `X-Takes` header, another host name, or another site's page) |
 | 404 | `not_found` |
 | 409 | `conflict`, `no_change`, `already_exists`, `stale_base`, `old_format` |
-| 500 | `failed`, `damaged` |
+| 500 | `failed`, `damaged`, `ffprobe_missing` |
 | 503 | `busy` |
 
 The command line is the primary contract. The HTTP routes are for the
