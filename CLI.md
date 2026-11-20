@@ -5,7 +5,8 @@ editors, AI agents, scripts. Your program calls the `takes` binary, sends
 timelines in as JSON, reads JSON out, and branches on the exit code. There
 is no library to link and no server to run.
 
-JSON format: **2**. `takes version --json` says which format a binary speaks.
+`takes version --json` says which JSON format a binary speaks.
+A project made in another format is refused with `old_format` (exit 5).
 Every time is a whole number of **frames** at the project's rate.
 
 ## The loop in one minute
@@ -111,8 +112,10 @@ interleaved in the list; order matters only within a track.
 | `duration` | Optional: the video's length in frames, for videos Takes cannot open. Clips of one video must give the same duration. |
 | `start` | The clip's first frame on the timeline. Checkout always gives it. |
 | `in`, `out` | The clip's first frame in its video, and the frame after its last. |
-| `volume` | Optional multiplier; absent or 0 means full volume. |
-| `muted` | Optional. |
+| `volume` | Optional multiplier: absent plays as recorded, `0.5` half, `0` silent. Below 0 is refused. |
+| `muted` | Optional. Silences the clip and keeps its `volume`. |
+| `from` | Submit only: the ID this clip had in `base`, when your editor gave it a new one (some do when a clip's start is trimmed). The clip keeps the old ID and its history. Takes never guesses it; see `suggested_from` under submit. |
+| `sync` | Optional: a name shared by clips that must keep their start times relative to each other, such as a shot and the music cut to it. A merge that would move them apart is a `sync` conflict. |
 
 **Videos are referred to, not copied.** Takes opens only files inside the
 project folder: a timeline cannot make it read, or the review server send,
@@ -159,12 +162,34 @@ What makes merges come out right:
 - **Splitting a clip:** keep the old ID on the first part and give the other
   parts new IDs. Two agents can then cut different parts of one long clip and
   both edits are kept.
-- **Renamed clips are recognised.** If your editor gives a clip a new ID when
-  its in point is trimmed, Takes sees that a clip's ID is gone and that a new
-  clip plays part of the same stretch of the same video on the same track. It
-  gives that clip its old ID back on submit, so you don't need to work around
-  it. Because that changes what you sent, it is shown as a change of its own:
+- **Renamed clips: say so with `from`.** If your editor gives a clip a new ID
+  when its in point is trimmed, send `"from": "b"` on it. Takes gives it its
+  old ID back, so the clip keeps its history and merges with anyone else's
+  edits of `b`, and shows it as a change of its own:
   `clip b came back as b2 and was kept as b: it plays part of the same footage`.
+  Takes no longer guesses this: a clip deleted and a different piece of the
+  same footage added back looks the same, and the guess put the other side's
+  edits of the deleted clip on it. Without `from` the clip is new and `b` is
+  deleted, which conflicts (`delete_edit`) with anyone who edited `b` instead
+  of landing on the wrong clip. Submit lists the clips that look renamed in
+  `suggested_from`.
+- **Order.** When both sides reorder clips on one track, each pair of clips
+  is merged as one value, "x plays before y", by the same three-way rule. If
+  the merged order would lose a move either side made (the moves contradict
+  each other), that is an `order` conflict.
+- **New clips next to deleted ones.** A clip one side adds right next to a
+  clip the other side deleted is a `neighbor_deleted` conflict: where it
+  belongs now is for a person to say.
+- **Whole fields.** Fields inside an object merge one by one, so one side's
+  `fx.type` can combine with the other side's `fx.params` into an effect
+  nobody made. Name such fields with `takes whole fx` (or `init -whole fx`):
+  a whole field merges as one value, and two different changes to it are one
+  `attribute` conflict.
+- **Sync.** Clips that share a `sync` name keep their start times relative
+  to each other. Their offsets merge as one value: one side may move the
+  group; if both do differently, or if the two edits together would pull the
+  clips apart (one side trims a shot before them, the other moves the music),
+  that is a `sync` conflict. Only declared groups are guarded.
 
 ## Conflicts
 
@@ -185,7 +210,7 @@ both ways. **Ours** is main; **theirs** is the edit request.
 
 | `kind` | What collided | Fields |
 |---|---|---|
-| `property` | both changed one property of a clip differently | `property` is one of `src`, `media`, `file`, `duration`, `in`, `out`, `track`, `layer`, `volume`, `gap`, `position`. `base`, `ours` and `theirs` are its three values. `gap` is the frames of space before the clip on its track; `file` is Takes' fingerprint of a video in the project folder, when the two sides saw different files under one name. `position` (the clip's place in the order) has no values. |
+| `property` | both changed one property of a clip differently | `property` is one of `src`, `media`, `file`, `duration`, `in`, `out`, `track`, `layer`, `volume`, `gap`, `sync`, `position`. `volume` values are multipliers, 1 for a clip with none. `base`, `ours` and `theirs` are its three values. `gap` is the frames of space before the clip on its track; `file` is Takes' fingerprint of a video in the project folder, when the two sides saw different files under one name. `position` (the clip's place in the order) has no values. |
 | `delete_edit` | one side deleted the clip, the other edited it | `ours` and `theirs` are `"deleted"` or `"edited"` |
 | `both_added` | both added a clip with this ID, differently | |
 | `same_range` | both changed the same frames of a clip that was cut into parts | `ours`, `theirs`: frame ranges `[in, out]` |
@@ -193,6 +218,10 @@ both ways. **Ours** is main; **theirs** is the edit request.
 | `attribute` | both changed one of a clip's other fields differently | `property` is the field's path (`color`, or `fx.a` inside an object); `base`, `ours`, `theirs` its values as sent, left out where that side has no such field |
 | `setting` | both changed one of the timeline's other top-level fields differently | `clip` is `""`; `property`, `base`, `ours`, `theirs` as for `attribute` |
 | `no_history` | the two cuts share no history | `clip` is `""` |
+| `order` | both sides reordered a track and the moves contradict each other, or both edited around a clip cut into parts and their orders cannot both be kept | `clip` is one of the clips; `ours`, `theirs` are those clips in each side's order |
+| `neighbor_deleted` | one side added a clip right next to a clip the other side deleted | `clip` is the new clip, `property` the deleted one; `ours`, `theirs` are `"added"` or `"deleted"` |
+| `sync` | clips kept in sync would be pulled apart, or both sides moved them differently | `clip` is the first of them, `property` the sync name; `base`, `ours`, `theirs` the clips' offsets from the first, as `"id+frames"` |
+| `invalid` | each side is fine, but together they make a timeline that submit would refuse (one side's `in` after the other side's `out`, two lengths for one video, every clip deleted) | `clip` is the clip that breaks the rule, `""` for the whole timeline. Only reported when the merge has no other conflict |
 
 Takes never resolves a conflict itself. To fix one, check out main as it
 is now, redo the edit on top of it, and submit it to the same cut. That
@@ -223,6 +252,9 @@ takes init -timeline <file|->                            import a timeline as ve
 takes init [-rate r] [-scene n] [-min s] <video> [names...]   find the shots in a video
 ```
 
+Both take `-whole fx,transition`: fields that merge as one value (see
+`whole`).
+
 Returns the timeline of main:
 
 ```json
@@ -237,6 +269,14 @@ has other top-level fields.
 unless `-rate` gives another, and refers to the video by the path given; a
 video of sound only has no frame rate, so it needs `-rate`, and becomes one
 audio clip of the whole file.
+
+Finding shots: a cut is a jump between frames scored above `-scene`
+(default 0.1; camera footage often wants 0.3 to 0.4), or a jump that stands
+out once the picture's brightness is spread out, so cuts between dark shots
+are found too, or a short stretch of black (a fade). Cuts closer together
+than `-min` seconds (default 0.5) are one cut, at the strongest, so a
+dissolve is one cut. No detector is always right: treat the shots as a first
+timeline to correct.
 
 Refuses with `already_exists` (exit 5) if the folder is already a project.
 An init that is refused leaves the folder as it was.
@@ -253,8 +293,14 @@ It reads stdin when the file is `-` or left out.
 
 ```json
 { "cut": "kim", "version": "…", "base": "…", "title": "trim a",
-  "changes": { "changed": 1, "total": 2, "lines": ["clip a in point 0 -> 25"] } }
+  "changes": { "changed": 1, "total": 2, "lines": ["clip a in point 0 -> 25"] },
+  "suggested_from": {} }
 ```
+
+`suggested_from` lists new clips that play part of a clip the edit no
+longer has, as sent ID → that clip (`{ "e1614429": "a" }`). Takes did not
+rename them: the clip was kept as new and `a` as deleted. If your editor
+renamed `a`, send `"from": "a"` on that clip from then on.
 
 Submitting again to the same cut updates its request. It must start from
 that cut's latest version, from a version that already contains it (for
@@ -289,23 +335,33 @@ answer, not a failure: it exits 0 with `can_merge: false`.
   "can_merge": false, "conflicts": [ … ],
   "base": "…", "main": "…",
   "changes": { "changed": 1, "total": 2, "lines": ["clip a in point 0 -> 50"] },
-  "length_now": 125, "length_if_approved": null }
+  "length_now": 125, "length_if_approved": null, "undone": [] }
 ```
 
 `base` is the common ancestor of main and the request, and `changes` is what
 the request changed since then. Lengths are frames; `length_if_approved` is
 `null` when it cannot be approved.
 
+`undone` lists the request's own edits that a `revert` took off main, each as
+`{ "version", "author", "message", "reverted_by" }`. Those edits are already
+in main's history, so approving does **not** bring them back (git behaves
+the same way). To have one again, check out main, redo it, and submit it. A
+revert that a later revert undid does not count. It is `[]` almost always.
+
 ### approve
 
 `takes approve <cut>` combines an open request into main.
 
 ```json
-{ "cut": "kim", "version": "…", "base": "…", "merged": false }
+{ "cut": "kim", "version": "…", "base": "…", "merged": false, "undone": [] }
 ```
 
-`version` is what main points at now. `merged` is false when main had not
-moved, so it simply moved forward to the request. With a conflict it fails
+`undone` is as for `review`: edits of the request that a revert took off main
+and that this approval did not bring back. `version` is what main points at now. `merged` is false when main had not
+moved, so it simply moved forward to the request. A request brought up to
+date with `update`, or redone on top of main, is recorded as an approval
+version of its own (`merged` true) even when main had not moved, so that
+history and blame keep main's own line of versions. With a conflict it fails
 with exit 4 and `code: conflict`, and main is unchanged. A request that was
 already approved or closed is `not_found` (exit 3), and the message says
 which.
@@ -339,7 +395,9 @@ again. `not_found` (exit 3) if the cut has no open request.
 
 `takes revert <version> [message]` takes main back to an earlier version's
 timeline, recorded as a **new** version (like `git revert`; nothing is
-erased). `<version>` may be a unique prefix from `log`.
+erased). `<version>` may be a unique prefix from `log`. The new version
+records which version it went back to, so `review` and `approve` can warn
+when a request still holds an edit the revert undid.
 
 ```json
 { "cut": "main", "version": "…", "reverts_to": "…", "message": "back to the import",
@@ -396,15 +454,21 @@ change is the removal.
 ### check
 
 `takes check` reads every stored record and checks it against its hash, and
-checks that every cut, request and version finds what it points at. It also
+checks that every cut, request and version finds what it points at, and that
+every version is a timeline submit would accept (each clip's `in` before its
+`out` and inside its video, one length per video, at least one clip). It also
 checks each video in the project folder that a cut plays against the
 fingerprint recorded for it, and reports one that is gone or was replaced by
 a different file. It changes nothing. Videos it cannot open (URLs, media
 IDs) are not looked at.
 
 ```json
-{ "ok": true, "objects": 17, "problems": [] }
+{ "ok": true, "objects": 17, "problems": [], "unverified": ["https://cdn/x.mp4"] }
 ```
+
+`unverified` lists videos a cut plays that takes cannot check at all: not a
+file in the project folder, and sent with no `media` fingerprint. It is not
+a problem, but if one changes, nothing here can tell.
 
 If anything is wrong it fails with exit 1 and `code: damaged`, and the
 error lists each problem:
@@ -419,6 +483,17 @@ clips name it) that is wrong.
 
 Every command also checks each stored record it reads, and fails with
 `damaged` rather than use one that does not match its hash.
+
+### whole
+
+`takes whole` lists the fields that merge as one value; `takes whole fx
+transition` sets them (the list is replaced) and `takes whole -clear` empties
+it. Name a field as conflicts do: `fx` for a clip's or the timeline's field,
+`fx.params` for one inside it.
+
+```json
+{ "fields": ["fx", "transition"] }
+```
 
 ### mcp
 
@@ -437,7 +512,7 @@ agent given `-owner` can approve its own edits.
 
 ### version, serve
 
-`takes version` returns `{ "version": "1.0.0", "format": 2 }`.
+`takes version` returns `{ "version": "…", "format": … }`: the release, and the JSON format it speaks.
 
 `takes serve [-addr host:port]` runs the review pages and an HTTP API until
 stopped. It prints no JSON (with `--json` it exits 2). It answers only
@@ -468,24 +543,11 @@ review pages, and are documented here only for their errors.
 
 ## Stability
 
-- Format 2 only ever grows: new commands, new fields, new error codes. If a
-  shape ever has to break, `format` goes up and the change is listed here.
+- The format only ever grows: new commands, new fields, new error codes. If
+  a shape ever has to break, `format` goes up.
 - Every shape on this page is frozen by tests.
   A change to the output fails the build until the golden files are
   deliberately updated.
 - The human output and the `message` sentences are not part of the contract.
-
-### Format 2 (from format 1)
-
-- Times are whole frames at the project's `rate`, not seconds: `in`, `out`,
-  `length`, `length_now`, `length_if_approved`, blame's `in` and `out`,
-  conflict values and ranges. `history` takes a frame, and `at` is
-  `{frame, source}`.
-- The snapshot and timeline carry `rate`; clips carry `start`, and may carry
-  `duration`. `gap` is no longer a snapshot field: send `start`.
-- `src` is your reference to the video and is kept as sent; `media` is your
-  optional fingerprint. A path must be inside the project folder. Takes no
-  longer copies videos into `.takes`, so `check` has no `media` count; it
-  checks local videos against fingerprints instead.
-- A project made by a format 1 takes is refused with `old_format` (exit 5).
-  Start a new project from your editor's timeline.
+- A project made by another version of takes is refused with `old_format`
+  (exit 5). Start a new project from your editor's timeline.

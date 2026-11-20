@@ -396,7 +396,7 @@ main a,main button,.solid{pointer-events:auto}
     <li><button data-go="4" title="Scene 5: The command line"><span>05</span><i></i></button></li>
     <li><button data-go="5" title="Scene 6: Install"><span>06</span><i></i></button></li>
   </ol>
-  <div class="hud-meta" aria-hidden="true"><span id="hud-scene">SC 01</span> · 25 fps · format 2</div>
+  <div class="hud-meta" aria-hidden="true"><span id="hud-scene">SC 01</span> · 25 fps</div>
 </div>
 
 <main>
@@ -495,7 +495,7 @@ main a,main button,.solid{pointer-events:auto}
       <div class="copy solid">
         <p class="slate"><b>SC 03</b><i></i>Many agents at once</p>
         <h2>Parallel edits combine clip by clip. Collisions come back as <em>data</em>.</h2>
-        <p class="scrub">Three agents can work on one cut at the same time. Edits to different clips, or to different fields of one clip, are all kept. When two change the same thing, approve stops, main stays as it was, and you get the conflict to act on.</p>
+        <p class="scrub">Three agents can work on one cut at the same time. Edits to different clips, or to different fields of one clip, are all kept. When two change the same thing, or their edits would combine into something neither made (clips reordered both ways, a clip dropped next to one the other deleted), approve stops, main stays as it was, and you get the conflict to act on. Main never holds a timeline that would not play.</p>
       </div>
       <figure class="card solid" style="margin:0">
         <div class="card-h"><span>approve · agent-c</span><span class="pill bad">exit 4</span></div>
@@ -549,8 +549,8 @@ clip <span class="a">c</span>  in 100  out 175  <span class="c">agent-b  "punch 
         <p class="scrub">Your program calls takes, reads one JSON document from stdout and branches on the exit code. There is no library to link and no server to run. AI agents get the same commands as tools over MCP.</p>
         <ul class="facts">
           <li><span class="k">Your media</span><p><b>Videos are referred to, never copied.</b> Takes opens only files inside the project folder and fingerprints them, so a file swapped under the same name shows up in review.</p></li>
-          <li><span class="k">Your fields</span><p><b>Every other field is kept.</b> Colour, transitions and effect settings ride along as sent and merge one field at a time, so two agents setting <code>fx.a</code> and <code>fx.b</code> both land.</p></li>
-          <li><span class="k">Frames</span><p><b>Every time is a whole frame</b> at the project's rate, including 30000/1001. Shapes are frozen by golden tests; format 2 only grows.</p></li>
+          <li><span class="k">Your fields</span><p><b>Every other field is kept.</b> Colour, transitions and effect settings ride along as sent and merge one field at a time, so two agents setting <code>fx.a</code> and <code>fx.b</code> both land. Mark a field whole (<code>takes whole fx</code>) and it merges as one value instead.</p></li>
+          <li><span class="k">Frames</span><p><b>Every time is a whole frame</b> at the project's rate, including 30000/1001. Shapes are frozen by golden tests; the format only grows.</p></li>
         </ul>
       </div>
       <div class="stack">
